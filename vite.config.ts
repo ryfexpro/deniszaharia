@@ -59,7 +59,11 @@ export default defineConfig(({ mode }) => {
         },
       }),
 
-      tanstackStart(),
+      tanstackStart({
+        spa: {
+          enabled: true,
+        },
+      }),
 
       nitro(),
 
