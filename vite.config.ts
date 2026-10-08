@@ -1,7 +1,5 @@
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { nitro } from "nitro/vite";
 import svgr from "vite-plugin-svgr";
 import { defineConfig } from "vite";
 import { fileURLToPath } from "node:url";
@@ -20,6 +18,10 @@ export default defineConfig(({ mode }) => {
     process.env.HF_DESIGN_INSPECTOR === "1" || mode === "design";
 
   return {
+    define: {
+      __HF_DESIGN_INSPECTOR__: JSON.stringify(designInspectorEnabled),
+    },
+
     server: {
       watch: {
         usePolling: true,
@@ -58,14 +60,6 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
-
-      tanstackStart({
-        spa: {
-          enabled: true,
-        },
-      }),
-
-      nitro(),
 
       higgsfieldDesignInspectorVitePlugin(designInspectorEnabled),
 
