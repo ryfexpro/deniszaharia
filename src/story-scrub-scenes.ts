@@ -1,9 +1,0 @@
-import type { ScrollScrubScene, ScrollScrubTheme } from "@/components/scroll-scrub/scroll-scrub";
-export const storyScrubTheme: ScrollScrubTheme = { accent:"#3156D8", background:"#080A0D", ink:"#F1EEE7", muted:"#8A909B" };
-export const storyScrubScenes: ScrollScrubScene[] = [{
- id:"story-film", label:"DENIS ZAHARIA", kicker:"THE PERSON BEHIND THE SYSTEMS.",
- title:"BUILD. MOVE. LIVE.", body:"Business is the work. Life is the reason.",
- clip:"/assets/world/denis-story.mp4", mobileClip:"/assets/world/denis-story-mobile.mp4",
- poster:"/assets/world/denis-story-poster.jpg", mobilePoster:"/assets/world/denis-story-mobile-poster.jpg",
- tags:["BUILD","MOVE","LIVE"]
-}];
