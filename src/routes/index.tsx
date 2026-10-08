@@ -1,3 +1,4 @@
+import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ScrollScrub } from "@/components/scroll-scrub/scroll-scrub";
 import { scrollScrubScenes, scrollScrubTheme } from "@/scroll-scrub-scenes";
@@ -20,25 +21,65 @@ const projects = [
 ];
 
 function Index() {
+  const [buildOpen, setBuildOpen] = useState(false);
+  const [formState, setFormState] = useState<"idle" | "sending" | "success" | "error">("idle");
+
+  useEffect(() => {
+    if (!buildOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => e.key === "Escape" && setBuildOpen(false);
+    const old = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = old;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [buildOpen]);
+
+  const openBuildForm = () => { setFormState("idle"); setBuildOpen(true); };
+
+  const submitBuildForm = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (formState === "sending") return;
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    setFormState("sending");
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: String(data.get("name") || "").trim(),
+          phone: String(data.get("phone") || "").trim(),
+          email: String(data.get("email") || "").trim(),
+          projectType: String(data.get("projectType") || "").trim(),
+          message: String(data.get("message") || "").trim(),
+          website: String(data.get("website") || "").trim(),
+        }),
+      });
+      if (!response.ok) throw new Error();
+      form.reset();
+      setFormState("success");
+    } catch {
+      setFormState("error");
+    }
+  };
+
   return <main className="dz-site">
     <header className="dz-nav">
       <a className="dz-mark" href="#top" aria-label="Denis Zaharia home">DZ.</a>
       <nav aria-label="Primary"><a href="#story">STORY</a><a href="#work">WORK</a><a href="#kevot">KEVOT</a><a href="#beyond">BEYOND</a></nav>
-      <div className="dz-nav-end"><span>EN / IT / RO / RU</span><a className="dz-nav-cta" href="#contact">BUILD WITH ME</a></div>
+      <div className="dz-nav-end"><span>EN / IT / RO / RU</span><button className="dz-nav-cta" type="button" onClick={openBuildForm}>BUILD WITH ME</button></div>
     </header>
 
     <section id="top" className="dz-hero dz-hero-primary"><ScrollScrub scenes={scrollScrubScenes} theme={scrollScrubTheme} /></section>
 
     <section id="story" className="dz-manifesto dz-section">
-      <p className="dz-kicker">STILL BUILDING</p>
-      <h2>NOT EVERYTHING<br/>WORKED.</h2>
-      <h2 className="dz-blue">EVERYTHING TAUGHT<br/>ME SOMETHING.</h2>
+      <p className="dz-kicker">STILL BUILDING</p><h2>NOT EVERYTHING<br/>WORKED.</h2><h2 className="dz-blue">EVERYTHING TAUGHT<br/>ME SOMETHING.</h2>
     </section>
 
     <section className="dz-timeline dz-section" aria-label="Entrepreneurial timeline">
-      {years.map(([year, label, title, body]) => <article className="dz-year" key={year}>
-        <div className="dz-year-number">{year}</div><div className="dz-year-copy"><p>{label}</p><h3>{title}</h3><span>{body}</span></div>
-      </article>)}
+      {years.map(([year,label,title,body]) => <article className="dz-year" key={year}><div className="dz-year-number">{year}</div><div className="dz-year-copy"><p>{label}</p><h3>{title}</h3><span>{body}</span></div></article>)}
     </section>
 
     <section className="dz-velocity dz-section"><div>IDEAS.</div><div>BUSINESSES.</div><div>MISTAKES.</div><div>CLIENTS.</div><div>SYSTEMS.</div><div>GROWTH.</div><strong>I KEPT BUILDING.</strong></section>
@@ -63,6 +104,7 @@ function Index() {
     </section>
 
     <section className="dz-story-film" aria-label="Denis Zaharia in motion"><ScrollScrub scenes={storyScrubScenes} theme={storyScrubTheme} /></section>
+
     <section id="beyond" className="dz-beyond-v2 dz-section">
       <div className="dz-beyond-v2-head"><p>BEYOND BUSINESS.</p><h2>BUSINESS IS WHAT I BUILD.<br/><span>LIFE IS WHY I BUILD IT.</span></h2></div>
       <div className="dz-beyond-v2-grid">
@@ -74,7 +116,25 @@ function Index() {
 
     <section className="dz-geo dz-section"><span>WE CAN WORK</span><i>+</i><span>CREATE</span><i>→</i><span>WORLDWIDE STORIES</span></section>
 
-    <section id="contact" className="dz-contact dz-section"><p>THE NEXT 10 YEARS START NOW.</p><h2>LET'S BUILD<br/>WHAT'S NEXT.</h2><a className="dz-build" href="mailto:hello@deniszaharia.com?subject=Build%20with%20Denis">BUILD WITH ME <span>↗</span></a></section>
+    <section id="contact" className="dz-contact dz-section"><p>THE NEXT 10 YEARS START NOW.</p><h2>LET'S BUILD<br/>WHAT'S NEXT.</h2><button className="dz-build" type="button" onClick={openBuildForm}>BUILD WITH ME <span>↗</span></button></section>
+
+    {buildOpen && <div className="dz-build-modal" role="dialog" aria-modal="true" aria-labelledby="dz-build-title" onMouseDown={e=>{if(e.target===e.currentTarget)setBuildOpen(false)}}>
+      <div className="dz-build-panel">
+        <button className="dz-build-close" type="button" aria-label="Close" onClick={()=>setBuildOpen(false)}>×</button>
+        <p className="dz-build-eyebrow">BUILD WITH ME</p><h2 id="dz-build-title">WHAT ARE WE<br/><span>BUILDING?</span></h2>
+        {formState==="success" ? <div className="dz-build-success"><strong>REQUEST SENT.</strong><p>Thank you. I’ll get back to you soon.</p><button type="button" onClick={()=>setBuildOpen(false)}>CLOSE ↗</button></div> :
+        <form className="dz-build-form" onSubmit={submitBuildForm}>
+          <input className="dz-honeypot" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true"/>
+          <label><span>NAME *</span><input name="name" required autoComplete="name" placeholder="Your name"/></label>
+          <label><span>PHONE / WHATSAPP *</span><input name="phone" type="tel" required autoComplete="tel" placeholder="+373..."/></label>
+          <label><span>EMAIL *</span><input name="email" type="email" required autoComplete="email" placeholder="you@company.com"/></label>
+          <label><span>PROJECT TYPE</span><select name="projectType" defaultValue=""><option value="" disabled>Select</option><option>AI & AUTOMATION</option><option>WEBSITE</option><option>BUSINESS</option><option>PARTNERSHIP</option><option>OTHER</option></select></label>
+          <label className="dz-build-message"><span>TELL ME ABOUT YOUR IDEA *</span><textarea name="message" required rows={5} placeholder="What would you like to build?"/></label>
+          {formState==="error" && <p className="dz-build-error">Something went wrong. Please try again.</p>}
+          <button className="dz-build-submit" type="submit" disabled={formState==="sending"}>{formState==="sending"?"SENDING...":"SEND REQUEST"} <span>↗</span></button>
+        </form>}
+      </div>
+    </div>}
 
     <footer><div>DENIS ZAHARIA</div><p>ENTREPRENEUR / BUSINESS BUILDER / AI FOUNDER</p><strong>STILL BUILDING.</strong><small>© 2026 DENIS ZAHARIA</small></footer>
   </main>;
