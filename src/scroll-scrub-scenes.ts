@@ -1,4 +1,7 @@
-import type { ScrollScrubScene, ScrollScrubTheme } from "@/components/scroll-scrub/scroll-scrub";
+import type {
+  ScrollScrubScene,
+  ScrollScrubTheme,
+} from "@/components/scroll-scrub/scroll-scrub";
 
 export const scrollScrubTheme: ScrollScrubTheme = {
   accent: "#3156D8",
@@ -9,15 +12,25 @@ export const scrollScrubTheme: ScrollScrubTheme = {
 
 export const scrollScrubScenes: ScrollScrubScene[] = [
   {
-    body: "Entrepreneur. Business builder. AI founder.",
-    clip: "/assets/world/scene-01.mp4",
     id: "scene-01",
-    kicker: "DENIS ZAHARIA",
     label: "DENIS ZAHARIA",
-    mobileClip: "/assets/world/scene-01-mobile.mp4",
-    mobilePoster: "/assets/world/scene-01-mobile-poster.png",
-    poster: "/assets/world/scene-01-poster.png",
-    tags: ["BUILD", "SCALE", "AUTOMATE"],
+    kicker: "DENIS ZAHARIA",
+
     title: "I DON'T FOLLOW THE NEXT WAVE. I BUILD ON IT.",
+    body: "Entrepreneur. Business builder. AI founder.",
+
+    clip: "/assets/world/scene-01.mp4",
+    mobileClip: "/assets/world/scene-01-mobile.mp4",
+
+    poster: "/assets/world/scene-01-poster.png",
+    mobilePoster: "/assets/world/scene-01-mobile-poster.png",
+
+    tags: ["BUILD", "SCALE", "AUTOMATE"],
+
+    scroll: 1.35,
+    linger: 0,
+
+    objectPosition: "50% 50%",
+    mobileObjectPosition: "50% 50%",
   },
 ];
